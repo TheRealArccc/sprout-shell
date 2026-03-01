@@ -52,8 +52,12 @@ void pwd(const std::vector<std::string>& args) {
 
 void cd(const std::vector<std::string>& args) {
     if (chdir(args[0].c_str()) == 0) {
+
+    } else {
         std::cerr << args[0] << " failed: " << std::strerror(errno) << std::endl;
     }
+
+    return;
 }
 
 void echo(const std::vector<std::string>& args) {
