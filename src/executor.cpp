@@ -12,18 +12,26 @@ void execute_command(const std::vector<std::string>& tokens) {
     }
 }
 
-void execute_external(const std::vector<std::string>& tokens) {
-    // pid_t pid = fork();
+void execute_external(const std::vector<std::string>& args) {
+    pid_t pid = fork();
 
-    // if (pid == 0) { // child process
-    //     std::vector<char*> args;
+    if (pid < 0) {
+        std::cerr << "failed to fork" << std::endl;
+    } else if (pid == 0) {
+        std::vector<char*> argv;
 
-    //     for (auto& s : tokens) {
-    //         args.push_back(const_cast<char>* (s.c_str()))
-    //     }
-    // } else if (pid > 0) { // parent process (shell)
+        for (const auto& arg : args) {
+            argv.push_back(const_cast<char*> (arg.c_str()));
+        }
 
-    // } else { // fork failed :(
+        argv.push_back(nullptr);
         
-    // }
+        if (execvp(argv[0], argv.data()) == -1) {
+            std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
+            _exit(EXIT_FAILURE);
+        }
+    } else {
+        int status;
+        waitpid(pid, &status, 0);
+    }
 }
