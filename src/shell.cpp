@@ -19,11 +19,28 @@ void shell() {
         std::cout << "~" << cwd.string() << " $ ";
         
         std::string input;
-        std::getline(std::cin, input);
+        std::getline(std::cin, input);  // Read full line including spaces
 
         // Tokenise
-        const std::vector<std::string>& tokens = tokenise(input);
-
+        const auto tokens = parse_input(input);
+        
+        // Debug output for tokens
+        std::cout << "\nParsed command:\n";
+        std::cout << "Has pipe: " << (tokens.has_pipe ? "true" : "false") << "\n";
+        std::cout << "Left args: ";
+        for (const auto& arg : tokens.left.args) {
+            std::cout << "[" << arg << "] ";
+        }
+        std::cout << "\n";
+        
+        if (tokens.has_pipe) {
+            std::cout << "Right args: ";
+            for (const auto& arg : tokens.right.args) {
+                std::cout << "[" << arg << "] ";
+            }
+            std::cout << "\n";
+        }
+        
         execute_command(tokens);
     }
 }
