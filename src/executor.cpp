@@ -14,18 +14,75 @@ static std::vector<char*> vec_to_cargs(const std::vector<std::string>& args) {
 }
 
 void execute_command(const ParsedInput& input) {
-    if (!input.has_pipe) {
-        auto left_args = input.left.args;
-        if (left_args.empty()) {
+    int n = input.pipeline.size();
+
+    if (n == 0) {
+        return;
+    } else if (n == 1) {
+        if (input.pipeline[0].args.empty()) {
             return;
-        } else if (is_builtin(left_args[0])) {
-            handle_builtin(left_args);
+        } else if (is_builtin(input.pipeline[0].args[0])) {
+            handle_builtin(input.pipeline[0].args);
         } else {
-            execute_external(left_args);
+            execute_external(input.pipeline[0].args);
         }
 
         return;
     }
+
+    std::vector<std::array<int, 2>> pipes(n - 1);
+
+    for (int i = 0; i < n - 1; i++) {
+        if (pipe(pipes[i].data()) < 0) {
+            perror("pipe failed");
+            return;
+        }
+    }
+
+    std::vector<pid_t> children;
+
+    for (int i = 0; i < n; i++) {
+        if (input.pipeline[i].args.empty()) {
+            return;
+        } else if (is_builtin(input.pipeline[i].args[0])) {
+            pid_t pid = fork();
+
+            if (pid == 0) {
+                if (i > 0) {
+                    dup2(pipes[i-1][0], STDIN_FILENO);
+                }
+                
+                if (i < n - 1) {
+                    dup2(pipes[i][1], STDOUT_FILENO);
+                }
+
+                for (auto& p : pipes) {
+                    close(p[0]);
+                    close(p[1]);
+                }
+
+                auto argv = vec_to_cargs(input.pipeline[i].args);
+
+                execvp(argv[0], argv.data());
+
+                std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
+                _exit(EXIT_FAILURE);
+            }
+
+            children.push_back(pid);
+        }
+    }
+
+    for (auto& p : pipes) {
+        close(p[0]);
+        close(p[1]);
+    }
+
+    for (auto& pid : children) {
+        waitpid(pid, nullptr, 0);
+    }
+
+    return;
 }
 
 void execute_external(const std::vector<std::string>& args) {

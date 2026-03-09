@@ -12,11 +12,7 @@
 bool is_builtin(const std::string& args);
 void handle_builtin(const std::vector<std::string>& args);
 
-void ls(const std::vector<std::string>& args);
-void pwd(const std::vector<std::string>& args);
 void cd(const std::vector<std::string>& args);
-void mkdir(const std::vector<std::string>& args);
-void echo(const std::vector<std::string>& args);
 void exit(const std::vector<std::string>& args);
 
 #endif

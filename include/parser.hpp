@@ -12,9 +12,7 @@ struct Command {
 };
 
 struct ParsedInput {
-    bool has_pipe = false;
-    Command left;
-    Command right;
+    std::vector<Command> pipeline;
 };
 
 ParsedInput parse_input(const std::string& input);

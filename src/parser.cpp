@@ -1,36 +1,23 @@
 #include "../include/parser.hpp"
+#include <sstream>
 
 ParsedInput parse_input(const std::string& input) {
     ParsedInput result;
 
-    size_t pipe_pos = input.find('|');
+    std::stringstream pipe_stream(input);
+    std::string segment;
 
-    if (pipe_pos != std::string::npos) {
-        result.has_pipe = true;
+    while (std::getline(pipe_stream, segment, '|')) {
+        Command cmd;
 
-        std::string left_part = input.substr(0, pipe_pos);
-        std::string right_part = input.substr(pipe_pos + 1);
-
-        std::stringstream left_stream(left_part);
-        std::stringstream right_stream(right_part);
-
+        std::stringstream token_stream(segment);
         std::string token;
 
-        while (left_stream >> token) {
-            result.left.args.push_back(token);
+        while (token_stream >> token) {
+            cmd.args.push_back(token);
         }
 
-        while (right_stream >> token) {
-            result.right.args.push_back(token);
-        }
-    } else {
-        std::stringstream stream(input);
-        
-        std::string token;
-
-        while (stream >> token) {
-            result.left.args.push_back(token);
-        }
+        result.pipeline.push_back(cmd);
     }
 
     return result;

@@ -25,21 +25,13 @@ void shell() {
         const auto tokens = parse_input(input);
         
         // Debug output for tokens
-        std::cout << "\nParsed command:\n";
-        std::cout << "Has pipe: " << (tokens.has_pipe ? "true" : "false") << "\n";
-        std::cout << "Left args: ";
-        for (const auto& arg : tokens.left.args) {
-            std::cout << "[" << arg << "] ";
-        }
-        std::cout << "\n";
-        
-        if (tokens.has_pipe) {
-            std::cout << "Right args: ";
-            for (const auto& arg : tokens.right.args) {
+        std::cout << "\nParsed command:\n";    std::cout << "args: ";
+        for (const auto& cmd : tokens.pipeline) {
+            for (const auto& arg : cmd.args) {
                 std::cout << "[" << arg << "] ";
             }
-            std::cout << "\n";
         }
+        std::cout << "\n\n";
         
         execute_command(tokens);
     }

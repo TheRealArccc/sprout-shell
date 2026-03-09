@@ -2,10 +2,10 @@
 #define EXECUTOR_HPP
 
 #include <unistd.h>
-// Removed Unix-specific header
 #include <vector>
 #include <string>
 #include <iostream>
+#include <array>
 
 #include "parser.hpp"
 
