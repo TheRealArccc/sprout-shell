@@ -45,9 +45,13 @@ void execute_command(const ParsedInput& input) {
         if (input.pipeline[i].args.empty()) {
             return;
         } else if (is_builtin(input.pipeline[i].args[0])) {
+            handle_builtin(input.pipeline[0].args);
+        } else {
             pid_t pid = fork();
 
+            // child process
             if (pid == 0) {
+
                 if (i > 0) {
                     dup2(pipes[i-1][0], STDIN_FILENO);
                 }
@@ -67,6 +71,19 @@ void execute_command(const ParsedInput& input) {
 
                 std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
                 _exit(EXIT_FAILURE);
+
+                //////////////////////////////
+                if (!input.pipeline[i].input_file.empty()) {
+                    int fd = open(input.pipeline[i].input_file.c_str(), O_RDONLY);
+
+                    if (fd < 0) {
+                        perror("open input");
+                        exit(1);
+                    }
+
+                    dup2(fd, STDIN_FILENO);
+                    close(fd);
+                }
             }
 
             children.push_back(pid);

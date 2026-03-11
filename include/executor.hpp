@@ -7,6 +7,8 @@
 #include <iostream>
 #include <array>
 
+#include <fcntl.h>
+
 #include "parser.hpp"
 
 void execute_command(const ParsedInput& input);

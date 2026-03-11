@@ -14,7 +14,16 @@ ParsedInput parse_input(const std::string& input) {
         std::string token;
 
         while (token_stream >> token) {
-            cmd.args.push_back(token);
+            if (token == ">") {
+                token_stream >> cmd.output_file;
+            } else if (token == ">>") {
+                token_stream >> cmd.output_file;
+                cmd.append = true;
+            } else if (token == "<") {
+                token_stream >> cmd.input_file;
+            } else {
+                cmd.args.push_back(token);
+            }
         }
 
         result.pipeline.push_back(cmd);

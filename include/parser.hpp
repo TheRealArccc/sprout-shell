@@ -9,6 +9,11 @@
 
 struct Command {
     std::vector<std::string> args;
+
+    std::string input_file;
+    std::string output_file;
+
+    bool append = false;
 };
 
 struct ParsedInput {
