@@ -24,7 +24,55 @@ void execute_command(const ParsedInput& input) {
         } else if (is_builtin(input.pipeline[0].args[0])) {
             handle_builtin(input.pipeline[0].args);
         } else {
-            execute_external(input.pipeline[0].args);
+            pid_t pid = fork();
+
+            if (pid == 0) {
+                // Handle input redirection
+                if (!input.pipeline[0].input_file.empty()) {
+                    int fd = open(input.pipeline[0].input_file.c_str(), O_RDONLY);
+
+                    if (fd < 0) {
+                        perror("open input");
+                        _exit(EXIT_FAILURE);
+                    }
+
+                    dup2(fd, STDIN_FILENO);
+                    close(fd);
+                }
+
+                // Handle output redirection
+                if (!input.pipeline[0].output_file.empty()) {
+                    int flags = O_WRONLY | O_CREAT;
+
+                    if (input.pipeline[0].append) {
+                        flags |= O_APPEND;
+                    } else {
+                        flags |= O_TRUNC;
+                    }
+
+                    int fd = open(input.pipeline[0].output_file.c_str(), flags, 0644);
+
+                    if (fd < 0) {
+                        perror("open output");
+                        _exit(EXIT_FAILURE);
+                    }
+
+                    dup2(fd, STDOUT_FILENO);
+                    close(fd);
+                }
+
+                auto argv = vec_to_cargs(input.pipeline[0].args);
+
+                execvp(argv[0], argv.data());
+
+                std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
+                _exit(EXIT_FAILURE);
+            } else if (pid > 0) {
+                int status;
+                waitpid(pid, &status, 0);
+            } else {
+                std::cerr << "failed to fork" << std::endl;
+            }
         }
 
         return;
@@ -45,7 +93,7 @@ void execute_command(const ParsedInput& input) {
         if (input.pipeline[i].args.empty()) {
             return;
         } else if (is_builtin(input.pipeline[i].args[0])) {
-            handle_builtin(input.pipeline[0].args);
+            handle_builtin(input.pipeline[i].args);
         } else {
             pid_t pid = fork();
 
@@ -60,6 +108,39 @@ void execute_command(const ParsedInput& input) {
                     dup2(pipes[i][1], STDOUT_FILENO);
                 }
 
+                /////////////// REDIRECTION ///////////////
+                if (!input.pipeline[i].input_file.empty()) {
+                    int fd = open(input.pipeline[i].input_file.c_str(), O_RDONLY);
+
+                    if (fd < 0) {
+                        perror("open input");
+                        _exit(EXIT_FAILURE);
+                    }
+
+                    dup2(fd, STDIN_FILENO);
+                    close(fd);
+                }
+
+                if (!input.pipeline[i].output_file.empty()) {
+                    int flags = O_WRONLY | O_CREAT;
+
+                    if (input.pipeline[i].append) {
+                        flags |= O_APPEND;
+                    } else {
+                        flags |= O_TRUNC;
+                    }
+
+                    int fd = open(input.pipeline[i].output_file.c_str(), flags, 0644);
+
+                    if (fd < 0) {
+                        perror("open output");
+                        _exit(EXIT_FAILURE);
+                    }
+
+                    dup2(fd, STDOUT_FILENO);
+                    close(fd);
+                }
+
                 for (auto& p : pipes) {
                     close(p[0]);
                     close(p[1]);
@@ -71,19 +152,6 @@ void execute_command(const ParsedInput& input) {
 
                 std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
                 _exit(EXIT_FAILURE);
-
-                //////////////////////////////
-                if (!input.pipeline[i].input_file.empty()) {
-                    int fd = open(input.pipeline[i].input_file.c_str(), O_RDONLY);
-
-                    if (fd < 0) {
-                        perror("open input");
-                        exit(1);
-                    }
-
-                    dup2(fd, STDIN_FILENO);
-                    close(fd);
-                }
             }
 
             children.push_back(pid);
@@ -103,19 +171,19 @@ void execute_command(const ParsedInput& input) {
 }
 
 void execute_external(const std::vector<std::string>& args) {
-    pid_t pid = fork();
+    // pid_t pid = fork();
 
-    if (pid < 0) {
-        std::cerr << "failed to fork" << std::endl;
-    } else if (pid == 0) {
-        auto argv = vec_to_cargs(args);
+    // if (pid < 0) {
+    //     std::cerr << "failed to fork" << std::endl;
+    // } else if (pid == 0) {
+    //     auto argv = vec_to_cargs(args);
         
-        if (execvp(argv[0], argv.data()) == -1) {
-            std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
-            _exit(EXIT_FAILURE);
-        }
-    } else {
-        int status;
-        waitpid(pid, &status, 0);
-    }
+    //     if (execvp(argv[0], argv.data()) == -1) {
+    //         std::cerr << argv[0] << " failed: " << std::strerror(errno) << std::endl;
+    //         _exit(EXIT_FAILURE);
+    //     }
+    // } else {
+    //     int status;
+    //     waitpid(pid, &status, 0);
+    // }
 }
