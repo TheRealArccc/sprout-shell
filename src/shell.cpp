@@ -23,18 +23,23 @@ void shell() {
 
         // Tokenise
         const auto tokens = parse_input(input);
+
+        ///////////////////////////////////////////////
         
-        // Debug output for tokens
-        std::cout << "\nParsed command:\n";    std::cout << "pipeline: ";
-        for (const auto& cmd : tokens.pipeline) {
-            std::cout << "\n[   args:   ";
-            for (const auto& arg : cmd.args) {
-                std::cout << "[" << arg << "] ";
-            }
-            std::cout << "  ]";
-        }
-        std::cout << "\n\n";
+        // // Debug output for tokens
+        // std::cout << "\nParsed command:\n";    std::cout << "pipeline: ";
+        // for (const auto& cmd : tokens.pipeline) {
+        //     std::cout << "\n[   args:   ";
+        //     for (const auto& arg : cmd.args) {
+        //         std::cout << "[" << arg << "] ";
+        //     }
+        //     std::cout << "  ]";
+        // }
+        // std::cout << "\n\n";
+
+        ///////////////////////////////////////////////
         
+        // execute tokens
         execute_command(tokens);
     }
 }

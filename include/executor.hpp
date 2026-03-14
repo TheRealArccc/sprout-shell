@@ -8,6 +8,7 @@
 #include <array>
 
 #include <fcntl.h>
+#include <signal.h>
 
 #include "parser.hpp"
 

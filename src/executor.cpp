@@ -27,7 +27,8 @@ void execute_command(const ParsedInput& input) {
             pid_t pid = fork();
 
             if (pid == 0) {
-                // Handle input redirection
+                signal(SIGINT, SIG_DFL);
+
                 if (!input.pipeline[0].input_file.empty()) {
                     int fd = open(input.pipeline[0].input_file.c_str(), O_RDONLY);
 
@@ -40,7 +41,6 @@ void execute_command(const ParsedInput& input) {
                     close(fd);
                 }
 
-                // Handle output redirection
                 if (!input.pipeline[0].output_file.empty()) {
                     int flags = O_WRONLY | O_CREAT;
 
@@ -78,6 +78,8 @@ void execute_command(const ParsedInput& input) {
         return;
     }
 
+    // n > 1 (piped commands)
+
     std::vector<std::array<int, 2>> pipes(n - 1);
 
     for (int i = 0; i < n - 1; i++) {
@@ -99,6 +101,7 @@ void execute_command(const ParsedInput& input) {
 
             // child process
             if (pid == 0) {
+                signal(SIGINT, SIG_DFL);
 
                 if (i > 0) {
                     dup2(pipes[i-1][0], STDIN_FILENO);
