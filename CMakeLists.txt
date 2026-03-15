@@ -3,4 +3,4 @@ project(sproutsh VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(sproutsh.exe src/main.cpp src/shell.cpp src/parser.cpp src/builtins.cpp src/executor.cpp src/history.cpp)
+add_executable(sproutsh src/main.cpp src/shell.cpp src/parser.cpp src/builtins.cpp src/executor.cpp src/history.cpp)
