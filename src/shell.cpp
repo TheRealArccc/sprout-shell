@@ -3,6 +3,7 @@
 #include "../include/shell.hpp"
 #include "../include/parser.hpp"
 #include "../include/executor.hpp"
+#include "../include/history.hpp"
 
 namespace fs = std::filesystem;
 
@@ -20,6 +21,8 @@ void shell() {
         
         std::string input;
         std::getline(std::cin, input);  // Read full line including spaces
+
+        add_history(input);
 
         // Tokenise
         const auto tokens = parse_input(input);

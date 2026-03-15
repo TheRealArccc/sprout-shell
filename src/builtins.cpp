@@ -1,6 +1,7 @@
 #include "../include/builtins.hpp"
+#include "../include/history.hpp"
 
-std::vector<std::string> commands = {"exit", "cd"};
+std::vector<std::string> commands = {"exit", "cd", "history"};
 
 void exit(const std::vector<std::string>& args) {
     std::exit(EXIT_SUCCESS);
@@ -31,5 +32,7 @@ void handle_builtin(const std::vector<std::string>& args) {
         return cd(args);
     } else if (args[0] == "exit") {
         return exit(args);
+    } else if (args[0] == "history") {
+        print_history();
     }
 }
