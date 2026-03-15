@@ -2,6 +2,10 @@
 
 A basic, simple shell built using C++ 🌱
 
+## 💻 Compatibility
+* **OS**: Designed for Unix/POSIX-compliant systems (Linux, macOS, WSL). 
+* **Note**: This shell is not natively compatible with Windows (CMD/PowerShell) due to its use of Unix system calls.
+
 ## Features
 * Command execution
 * Program execution
@@ -48,6 +52,7 @@ Redirection symbols must have spaces before and after them
 Sprout Shell handles standard interrupts like `Ctrl+C`. It won't crash or exit when you interrupt a running process, keeping your session active.
 
 ## ⚙️ Building and Running
+> **Note**: This shell is designed for Linux/Unix systems. If you are on Windows, please use **WSL** (Windows Subsystem for Linux).
 ### Prerequisites
 * C++ Compiler (supporting C++17 or later)
 * CMake (version 3.10 or higher)
