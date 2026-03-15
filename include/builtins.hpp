@@ -12,6 +12,8 @@
 bool is_builtin(const std::string& args);
 void handle_builtin(const std::vector<std::string>& args);
 
+void sprout(const std::vector<std::string>& args);
+void history();
 void cd(const std::vector<std::string>& args);
 void exit(const std::vector<std::string>& args);
 
